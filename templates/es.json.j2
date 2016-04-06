@@ -1,0 +1,23 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "ElasticSearch Template",
+  "Parameters" : {
+    "DomainName" : {
+      "Type" : "String",
+      "Description" : "Domain name for the ElasticSearch instance"
+    },
+    "InstanceType" : {
+      "Description" : "WebServer EC2 instance type",
+      "Type" : "String",
+      "Default" : "m3.medium.elasticsearch"
+    }
+  },
+  "Resources" : {
+    "ElasticSearch" : {
+      "Type" : "AWS::Elasticsearch::Domain",
+      "Properties" : {
+        "DomainName" : { "Ref" : "DomainName" }
+      }
+    }
+  }
+}

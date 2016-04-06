@@ -1,0 +1,10 @@
+- hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    es_domain_name: "playbook-test"
+    es_stack_prefix: "role-test-"
+    es_template: "build/test.json"
+  roles: 
+    - role: elasticsearch
+
