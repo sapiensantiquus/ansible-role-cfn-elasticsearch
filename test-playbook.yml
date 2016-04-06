@@ -2,9 +2,10 @@
   connection: local
   gather_facts: False
   vars:
-    es_domain_name: "playbook-test"
-    es_stack_prefix: "role-test-"
-    es_template: "build/test.json"
+    elasticsearch:
+      domain_name: "playbook-test"
+      stack_prefix: "role-test-"
+      template: "build/test.json"
   roles: 
     - role: elasticsearch
 
