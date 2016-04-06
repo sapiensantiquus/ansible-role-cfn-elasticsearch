@@ -1,0 +1,14 @@
+---
+- name: Create ElasticSearch Template
+  template: 
+    src: es.json.j2 
+    dest: "{{ es_template }}"
+
+- name: Run cloudformation
+  cloudformation:
+    template: "{{ es_template }}"
+    region: "{{ region }}"
+    stack_name: "{{ environ }}-{{ es_stack_prefix | default(omit) }}elasticsearch"
+    template_parameters: 
+      DomainName: "{{ es_domain_name }}"
+  
