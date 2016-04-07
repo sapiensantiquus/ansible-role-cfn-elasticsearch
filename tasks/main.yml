@@ -11,4 +11,8 @@
     stack_name: "{{ environ }}-{{ elasticsearch.stack_prefix | default(omit) }}elasticsearch"
     template_parameters: 
       DomainName: "{{ elasticsearch.domain_name }}"
-  
+      ESPublisherLambdaS3Bucket: "{{ elasticsearch.lambda_s3_bucket }}"
+      ESPublisherLambdaS3Object: "{{ elasticsearch.lambda_s3_object }}"
+      ESInstanceType: "{{ elasticsearch.instance_type | default('m3.medium.elasticsearch') }}"
+      KinesisShardCount: "{{ elasticsearch.kinesis_shard_count }}"      
+    security_token: "{{ lookup('env','AWS_SESSION_TOKEN' ) }}"
