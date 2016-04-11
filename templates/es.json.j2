@@ -34,6 +34,21 @@
         "DomainName" : { "Ref" : "DomainName" }
       }
     },
+    "CloudWatchKinesisRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "Path" : "/logging/",
+        "AssumeRolePolicyDocument" : {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": { "Service": "logs.us-west-2.amazonaws.com" },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        }
+      }
+    },
     "ESPublisherLambdaRole": {
       "Type": "AWS::IAM::Role",
       "Properties":{
@@ -111,6 +126,16 @@
         "FunctionName" : { "Fn::GetAtt" : [ "ESPublisherLambda", "Arn" ] },
         "StartingPosition" : "LATEST"
       }
+    }
+  },
+  "Outputs" : {
+    "CWKinesisRoleARN" : {
+      "Value": {
+        "Fn::GetAtt" : [ "CloudWatchKinesisRole", "Arn" ]
+      }
+    },
+    "CWKinesisRoleName" : {
+      "Value" : { "Ref" : "CloudWatchKinesisRole" }
     }
   }
 }

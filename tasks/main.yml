@@ -1,18 +1,36 @@
 ---
 - name: Create ElasticSearch Template
-  template: 
-    src: es.json.j2 
-    dest: "{{ elasticsearch.template }}"
+  template:
+    src: es.json.j2
+    dest: "{{ elasticsearch_template_path }}"
 
 - name: Run cloudformation
   cloudformation:
-    template: "{{ elasticsearch.template }}"
+    template: "{{ elasticsearch_template_path }}"
     region: "{{ region }}"
-    stack_name: "{{ environ }}-{{ elasticsearch.stack_prefix | default(omit) }}elasticsearch"
-    template_parameters: 
+    stack_name: "{{ elasticsearch_stack_name }}"
+    template_parameters:
       DomainName: "{{ elasticsearch.domain_name }}"
       ESPublisherLambdaS3Bucket: "{{ elasticsearch.lambda_s3_bucket }}"
       ESPublisherLambdaS3Object: "{{ elasticsearch.lambda_s3_object }}"
       ESInstanceType: "{{ elasticsearch.instance_type | default('m3.medium.elasticsearch') }}"
-      KinesisShardCount: "{{ elasticsearch.kinesis_shard_count }}"      
+      KinesisShardCount: "{{ elasticsearch.kinesis_shard_count }}"
     security_token: "{{ lookup('env','AWS_SESSION_TOKEN' ) }}"
+  register: elasticsearch_stack
+
+- name: Convert stack to native
+  set_fact:
+    kinesis_cwl_role: "{{ elasticsearch_stack.stack_outputs['CWKinesisRoleARN'] }}"
+  when: elasticsearch.ingest_cloudwatch is defined and elasticsearch.ingest_cloudwatch == "true"
+
+- debug: var=elasticsearch_stack
+
+- name: Create Additional Kinesis Access Role for CW
+  template:
+    src: kinesis_cwl.json.j2
+    dest: "{{ elasticsearch_cw_kinesis_template_path }}"
+  when: elasticsearch.ingest_cloudwatch is defined and elasticsearch.ingest_cloudwatch == "true"
+
+- name: Attach policy to role
+  shell: "aws iam put-role-policy --role-name {{ elasticsearch_stack.stack_outputs['CWKinesisRoleName'] }} --policy-name PermissionsPolicyForCWL  --policy-document fileb://{{ elasticsearch_cw_kinesis_template_path }}"
+  when: elasticsearch.ingest_cloudwatch is defined and elasticsearch.ingest_cloudwatch == "true"
