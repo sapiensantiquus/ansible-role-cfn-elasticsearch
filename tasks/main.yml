@@ -15,6 +15,7 @@
       ESPublisherLambdaS3Object: "{{ elasticsearch.lambda_s3_object }}"
       ESInstanceType: "{{ elasticsearch.instance_type | default('m3.medium.elasticsearch') }}"
       KinesisShardCount: "{{ elasticsearch.kinesis_shard_count }}"
+      CWDestinationName: "{{ elasticsearch.cloudwatch_destination_name }}"
     security_token: "{{ lookup('env','AWS_SESSION_TOKEN' ) }}"
   register: elasticsearch_stack
 
@@ -22,8 +23,6 @@
   set_fact:
     kinesis_cwl_role: "{{ elasticsearch_stack.stack_outputs['CWKinesisRoleARN'] }}"
   when: elasticsearch.ingest_cloudwatch is defined and elasticsearch.ingest_cloudwatch == "true"
-
-- debug: var=elasticsearch_stack
 
 - name: Create Additional Kinesis Access Role for CW
   template:
@@ -34,3 +33,15 @@
 - name: Attach policy to role
   shell: "aws iam put-role-policy --role-name {{ elasticsearch_stack.stack_outputs['CWKinesisRoleName'] }} --policy-name PermissionsPolicyForCWL  --policy-document fileb://{{ elasticsearch_cw_kinesis_template_path }}"
   when: elasticsearch.ingest_cloudwatch is defined and elasticsearch.ingest_cloudwatch == "true"
+
+#- name: Create stuff
+#  template:
+#    src: "tmp.json.j2"
+#    dest: "build/tmp.json"
+
+#- name: create destination
+#  shell: "aws logs put-destination --destination-name \"TestDestination\" --target-arn \"{{ elasticsearch_stack.stack_outputs['CWKinesisARN'] }}\"  --role-arn \"{{ elasticsearch_stack.stack_outputs['CWKinesisRoleARN'] }}\""
+
+
+#- name: apply policy
+#  shell: aws logs put-destination-policy --destination-name "TestDestination" --access-policy file://build/tmp.json

@@ -19,6 +19,9 @@
     },
     "KinesisShardCount" : {
       "Type" : "Number"
+    },
+    "CWDestinationName" : {
+      "Type" : "String"
     }
   },
   "Resources" : {
@@ -126,6 +129,16 @@
         "FunctionName" : { "Fn::GetAtt" : [ "ESPublisherLambda", "Arn" ] },
         "StartingPosition" : "LATEST"
       }
+    },
+    "CloudWatchDestination" : {
+      "Type" : "AWS::Logs::Destination",
+      "Properties" : {
+        "DestinationName" : { "Ref" : "CWDestinationName" },
+        "RoleArn" : {  "Fn::GetAtt" : [ "CloudWatchKinesisRole", "Arn" ] },
+        "TargetArn" : {  "Fn::GetAtt" : [ "Kinesis", "Arn" ] },
+        "DestinationPolicy" :
+        { "Fn::Join" : ["", ["{\"Version\" : \"2012-10-17\",\"Statement\" : [{% for cw_subscription_creator_arn in elasticsearch.cloudwatch_subscription_creator_arns %}{\"Effect\" : \"Allow\", \"Principal\" : {\"AWS\" : \"{{ cw_subscription_creator_arn }}\"}, \"Action\" : \"logs:PutSubscriptionFilter\", \"Resource\" : \"arn:aws:logs:us-west-2:209983464176:destination:",{ "Ref" : "CWDestinationName"},"\"}{% if not loop.last -%}, {% endif -%}{% endfor %}]}"]] }
+      }
     }
   },
   "Outputs" : {
@@ -136,6 +149,11 @@
     },
     "CWKinesisRoleName" : {
       "Value" : { "Ref" : "CloudWatchKinesisRole" }
+    },
+    "CWKinesisARN" : {
+      "Value" : {
+        "Fn::GetAtt" : [ "Kinesis", "Arn"]
+      }
     }
   }
 }
