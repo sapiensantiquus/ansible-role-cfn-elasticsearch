@@ -22,19 +22,108 @@
     },
     "CWDestinationName" : {
       "Type" : "String"
+    },
+    "ESUseEBS" : {
+      "Type" : "String"
+    },
+    "ESEBSSize" : {
+      "Type" : "Number"
+    },
+    "ESEBSIOPS" : {
+      "Type" : "Number"
+    },
+    "ESEBSType" : {
+      "Type" : "String"
+    },
+    "ESDedicatedMasterEnabled" : {
+      "Type" : "String"
+    },
+    "ESDedicatedMasterCount" : {
+      "Type" : "Number"
+    },
+    "ESDedicatedMasterType" : {
+      "Type" : "String"
+    },
+    "ESZoneAwarenessEnabled" : {
+      "Type" : "String"
+    },
+    "ESSnapshotHour" : {
+      "Type" : "Number"
     }
+  },
+  "Conditions" : {
+    "ESEBSEnabled" : { "Fn::Equals" : [{ "Ref" : "ESUseEBS" }, "true"]},
+    "ESEBSUseIOPS" : { "Fn::And" : [{ "Fn::Equals" : [{ "Ref" : "ESUseEBS" }, "true" ]}, { "Fn::Not" : [{ "Fn::Equals" : [{ "Ref" : "ESEBSIOPS" },0]}]}]},
+    "ESUseDedicatedMaster" : { "Fn::Equals" : [{ "Ref" : "ESDedicatedMasterEnabled" }, "true" ]}
   },
   "Resources" : {
     "Kinesis" : {
      "Type" : "AWS::Kinesis::Stream",
      "Properties" : {
-        "ShardCount" : { "Ref" : "KinesisShardCount" }
+        "ShardCount" : { "Ref" : "KinesisShardCount" },
+        "Tags" : [
+          {% for tag in tags.keys() %}
+            {
+              "Key" : "{{ tag }}",
+              "Value" : "{{ tags[tag] }}"
+            }
+            {% if not loop.last %}, {% endif %}
+          {% endfor %}
+        ]
       }
     },
     "ElasticSearch" : {
       "Type" : "AWS::Elasticsearch::Domain",
       "Properties" : {
-        "DomainName" : { "Ref" : "DomainName" }
+        "DomainName" : { "Ref" : "DomainName" },
+        "SnapshotOptions" : {
+          "AutomatedSnapshotStartHour" : { "Ref" : "ESSnapshotHour" }
+        },
+        "ElasticsearchClusterConfig" : {
+          "InstanceType" : { "Ref" : "ESInstanceType"},
+          "DedicatedMasterEnabled" : { "Ref" : "ESDedicatedMasterEnabled" },
+          "DedicatedMasterType" : {
+            "Fn::If" : [
+              "ESUseDedicatedMaster",
+              { "Ref" : "ESDedicatedMasterType" },
+              { "Ref" : "AWS::NoValue" }
+            ]
+          },
+          "ZoneAwarenessEnabled" : { "Ref" : "ESZoneAwarenessEnabled" }
+        },
+        "EBSOptions" : {
+          "EBSEnabled" : { "Ref" : "ESUseEBS" },
+          "VolumeSize" : {
+            "Fn::If" : [
+              "ESEBSEnabled",
+              { "Ref" : "ESEBSSize" },
+              { "Ref" : "AWS::NoValue" }
+            ]
+          },
+          "VolumeType" : {
+            "Fn::If" : [
+              "ESEBSEnabled",
+              { "Ref" : "ESEBSType" },
+              {"Ref" : "AWS::NoValue"}
+            ]
+          },
+          "Iops" : {
+            "Fn::If" : [
+              "ESEBSUseIOPS",
+              { "Ref" : "ESEBSIOPS" },
+              {"Ref" : "AWS::NoValue"}
+            ]
+          }
+        },
+        "Tags" : [
+          {% for tag in tags.keys() %}
+            {
+              "Key" : "{{ tag }}",
+              "Value" : "{{ tags[tag] }}"
+            }
+            {% if not loop.last %}, {% endif %}
+          {% endfor %}
+        ]
       }
     },
     "CloudWatchKinesisRole" : {
@@ -131,13 +220,14 @@
       }
     },
     "CloudWatchDestination" : {
+      "DependsOn" : "ElasticSearch",
       "Type" : "AWS::Logs::Destination",
       "Properties" : {
         "DestinationName" : { "Ref" : "CWDestinationName" },
         "RoleArn" : {  "Fn::GetAtt" : [ "CloudWatchKinesisRole", "Arn" ] },
         "TargetArn" : {  "Fn::GetAtt" : [ "Kinesis", "Arn" ] },
         "DestinationPolicy" :
-        { "Fn::Join" : ["", ["{\"Version\" : \"2012-10-17\",\"Statement\" : [{% for cw_subscription_creator_arn in elasticsearch.cloudwatch_subscription_creator_arns %}{\"Effect\" : \"Allow\", \"Principal\" : {\"AWS\" : \"{{ cw_subscription_creator_arn }}\"}, \"Action\" : \"logs:PutSubscriptionFilter\", \"Resource\" : \"arn:aws:logs:us-west-2:209983464176:destination:",{ "Ref" : "CWDestinationName"},"\"}{% if not loop.last -%}, {% endif -%}{% endfor %}]}"]] }
+        { "Fn::Join" : ["", ["{\"Version\" : \"2012-10-17\",\"Statement\" : [{% for cw_subscription_creator_arn in elasticsearch_cloudwatch_subscription_creator_arns %}{\"Effect\" : \"Allow\", \"Principal\" : {\"AWS\" : \"{{ cw_subscription_creator_arn }}\"}, \"Action\" : \"logs:PutSubscriptionFilter\", \"Resource\" : \"arn:aws:logs:us-west-2:209983464176:destination:",{ "Ref" : "CWDestinationName"},"\"}{% if not loop.last %}, {% endif %}{% endfor %}]}"]] }
       }
     }
   },

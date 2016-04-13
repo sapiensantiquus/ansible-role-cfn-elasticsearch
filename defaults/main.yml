@@ -1,0 +1,13 @@
+elasticsearch_stack_name: "{{ environ }}-{{ elasticsearch_stack_prefix | default(omit) }}elasticsearch"
+elasticsearch_template_path: "build/{{ elasticsearch_stack_name }}.json"
+elasticsearch_cw_kinesis_template_path: "build/kinesis-{{ elasticsearch_stack_name }}.json"
+elasticsearch_use_ebs: "false"
+elasticsearch_instance_type: m3.medium.elasticsearch
+elasticsearch_ebs_size: "0"
+elasticsearch_ebs_type: "gp2"
+elasticsearch_ebs_iops: "0"
+elasticsearch_dedicated_master_enabled: "false"
+elasticsearch_dedicated_master_count: "0"
+elasticsearch_dedicated_master_type: "{{ elasticsearch_instance_type }}"
+elasticsearch_zone_awareness_enabled: "false"
+elasticsearch_snapshot_hour: 0
