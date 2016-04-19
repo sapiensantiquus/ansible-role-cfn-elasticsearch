@@ -20,9 +20,6 @@
     "KinesisShardCount" : {
       "Type" : "Number"
     },
-    "CWDestinationName" : {
-      "Type" : "String"
-    },
     "ESUseEBS" : {
       "Type" : "String"
     },
@@ -34,6 +31,9 @@
     },
     "ESEBSType" : {
       "Type" : "String"
+    },
+    "ESInstanceCount" : {
+      "Type" : "Number"
     },
     "ESDedicatedMasterEnabled" : {
       "Type" : "String"
@@ -81,6 +81,7 @@
         },
         "ElasticsearchClusterConfig" : {
           "InstanceType" : { "Ref" : "ESInstanceType"},
+          "InstanceCount" : { "Ref" : "ESInstanceCount" },
           "DedicatedMasterEnabled" : { "Ref" : "ESDedicatedMasterEnabled" },
           "DedicatedMasterType" : {
             "Fn::If" : [
@@ -132,11 +133,14 @@
         "Path" : "/logging/",
         "AssumeRolePolicyDocument" : {
           "Statement": [
+          {% for region in elasticsearch_source_log_regions %}
             {
               "Effect": "Allow",
-              "Principal": { "Service": "logs.us-west-2.amazonaws.com" },
+              "Principal": { "Service": "logs.{{ region }}.amazonaws.com" },
               "Action": "sts:AssumeRole"
             }
+            {% if not loop.last %}, {% endif %}
+          {% endfor %}
           ]
         }
       }
@@ -217,17 +221,6 @@
         "EventSourceArn" : { "Fn::GetAtt" : [ "Kinesis", "Arn" ] },
         "FunctionName" : { "Fn::GetAtt" : [ "ESPublisherLambda", "Arn" ] },
         "StartingPosition" : "LATEST"
-      }
-    },
-    "CloudWatchDestination" : {
-      "DependsOn" : "ElasticSearch",
-      "Type" : "AWS::Logs::Destination",
-      "Properties" : {
-        "DestinationName" : { "Ref" : "CWDestinationName" },
-        "RoleArn" : {  "Fn::GetAtt" : [ "CloudWatchKinesisRole", "Arn" ] },
-        "TargetArn" : {  "Fn::GetAtt" : [ "Kinesis", "Arn" ] },
-        "DestinationPolicy" :
-        { "Fn::Join" : ["", ["{\"Version\" : \"2012-10-17\",\"Statement\" : [{% for cw_subscription_creator_arn in elasticsearch_cloudwatch_subscription_creator_arns %}{\"Effect\" : \"Allow\", \"Principal\" : {\"AWS\" : \"{{ cw_subscription_creator_arn }}\"}, \"Action\" : \"logs:PutSubscriptionFilter\", \"Resource\" : \"arn:aws:logs:us-west-2:209983464176:destination:",{ "Ref" : "CWDestinationName"},"\"}{% if not loop.last %}, {% endif %}{% endfor %}]}"]] }
       }
     }
   },
