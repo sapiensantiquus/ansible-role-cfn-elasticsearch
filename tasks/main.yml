@@ -10,7 +10,6 @@
     region: "{{ region }}"
     stack_name: "{{ elasticsearch_stack_name }}"
     template_parameters:
-      DomainName: "{{ elasticsearch_domain_name }}"
       ESPublisherLambdaS3Bucket: "{{ elasticsearch_lambda_s3_bucket }}"
       ESPublisherLambdaS3Object: "{{ elasticsearch_lambda_s3_object }}"
       ESInstanceType: "{{ elasticsearch_instance_type }}"
@@ -25,6 +24,11 @@
       ESZoneAwarenessEnabled: "{{ elasticsearch_zone_awareness_enabled }}"
       ESSnapshotHour: "{{ elasticsearch_snapshot_hour }}"
       ESInstanceCount: "{{ elasticsearch_instance_count }}"
+      ESHostedZoneName: "{{ elasticsearch_hosted_zone }}"
+      ESDomainName: "{{ elasticsearch_domain_name }}"
+      ESProxySG: "{{ elasticsearch_proxy_sg_id }}"
+      Region: "{{ region }}"
+      Account: "{{ elasticsearch_account }}"
     security_token: "{{ lookup('env','AWS_SESSION_TOKEN' ) }}"
     tags: "{{ tags }}"
   register: elasticsearch_stack

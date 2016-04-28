@@ -2,9 +2,14 @@
   "AWSTemplateFormatVersion" : "2010-09-09",
   "Description" : "ElasticSearch Template",
   "Parameters" : {
-    "DomainName" : {
-      "Type" : "String",
-      "Description" : "Domain name for the ElasticSearch instance"
+    "Account" : {
+      "Type" : "Number"
+    },
+    "ESProxySG" : {
+      "Type" : "String"
+    },
+    "Region" : {
+      "Type" : "String"
     },
     "ESInstanceType" : {
       "Description" : "WebServer EC2 instance type",
@@ -49,6 +54,12 @@
     },
     "ESSnapshotHour" : {
       "Type" : "Number"
+    },
+    "ESHostedZoneName" : {
+      "Type" : "String"
+    },
+    "ESDomainName" : {
+      "Type" : "String"
     }
   },
   "Conditions" : {
@@ -75,7 +86,6 @@
     "ElasticSearch" : {
       "Type" : "AWS::Elasticsearch::Domain",
       "Properties" : {
-        "DomainName" : { "Ref" : "DomainName" },
         "SnapshotOptions" : {
           "AutomatedSnapshotStartHour" : { "Ref" : "ESSnapshotHour" }
         },
@@ -115,6 +125,15 @@
               {"Ref" : "AWS::NoValue"}
             ]
           }
+        },
+        "AccessPolicies" : {
+          "Statement": [
+            {
+              "Action": "es:ESHttp*",
+              "Principal": { "Fn::Join" : ["",["arn:aws:ec2:", {"Ref" : "Region" },":", { "Ref" : "Account"}, ":security-group/",{ "Ref" : "ESProxySG" }]]},
+              "Effect": "Allow"
+            }
+          ]
         },
         "Tags" : [
           {% for tag in tags.keys() %}
@@ -222,6 +241,17 @@
         "FunctionName" : { "Fn::GetAtt" : [ "ESPublisherLambda", "Arn" ] },
         "StartingPosition" : "LATEST"
       }
+    },
+    "ESDomainRecordSet" : {
+      "Type" : "AWS::Route53::RecordSet",
+      "Properties" : {
+        "ResourceRecords" : [{ "Fn::GetAtt" : [ "ElasticSearch", "DomainEndpoint" ] }],
+        "Comment" : "ElasticSearch host domain name.",
+        "HostedZoneName" : { "Ref" : "ESHostedZoneName" },
+        "Name" : { "Ref" : "ESDomainName" },
+        "Type" : "CNAME",
+        "TTL" : 300
+      }
     }
   },
   "Outputs" : {
@@ -236,6 +266,16 @@
     "CWKinesisARN" : {
       "Value" : {
         "Fn::GetAtt" : [ "Kinesis", "Arn"]
+      }
+    },
+    "ESDomainEndpoint" : {
+      "Value" : {
+        "Fn::GetAtt" : [ "ElasticSearch", "DomainEndpoint" ]
+      }
+    },
+    "ESDomainName" : {
+      "Value" : {
+        "Ref" : "ESDomainName"
       }
     }
   }
