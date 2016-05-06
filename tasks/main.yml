@@ -8,6 +8,7 @@
   cloudformation:
     template: "{{ elasticsearch_template }}"
     stack_name: "{{ elasticsearch_stack_name }}"
+    region: "{{ elasticsearch_region }}"
     template_parameters:
       ESPublisherLambdaS3Bucket: "{{ elasticsearch_lambda_s3_bucket }}"
       ESPublisherLambdaS3Object: "{{ elasticsearch_lambda_s3_object }}"
