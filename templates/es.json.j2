@@ -158,6 +158,7 @@
         ]
       }
     },
+    {% if elasticsearch_ingest_cloudwatch %}
     "CloudWatchKinesisRole" : {
       "Type" : "AWS::IAM::Role",
       "Properties" : {
@@ -176,6 +177,7 @@
         }
       }
     },
+    {% endif %}
     "ESPublisherLambdaRole": {
       "Type": "AWS::IAM::Role",
       "Properties":{
@@ -256,11 +258,13 @@
     }
   },
   "Outputs" : {
+    {% if elasticsearch_ingest_cloudwatch %}
     "CWKinesisRoleARN" : {
       "Value": {
         "Fn::GetAtt" : [ "CloudWatchKinesisRole", "Arn" ]
       }
     },
+    {% endif %}
     "CWKinesisRoleName" : {
       "Value" : { "Ref" : "CloudWatchKinesisRole" }
     },
