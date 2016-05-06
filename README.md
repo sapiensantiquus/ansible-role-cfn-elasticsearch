@@ -15,6 +15,7 @@ For the sake of clarity: variables that are defined as not required, but have a 
 | elasticsearch_kinesis_shard_count | yes | | Number of shards to use with the Kinesis stream |
 | elasticsearch_use_ebs | no | false | Whether or not to use EBS volumes for data persistence on the cluster nodes |
 | elasticsearch_ebs_type | no | "gp2" | If EBS volumes are used for data persistence on the cluster nodes, the type of volume to use | 
+| elasticsearch_ebs_size | no | 0 | If EBS volumes are used for data persistence on the cluster nodes, the size (in GB) of volume to use | 
 | elasticsearch_ebs_iops | no | | If provisioned IOPS are required on the EBS volumes, the IOPS requirement |
 | elasticsearch_dedicated_master_enabled | no | false |  Whether to use dedicated master nodes for the ElasticSearch cluster |
 | elasticsearch_dedicated_master_count | conditional | 0 | Number of dedicated master nodes for the cluster. Note: although there is a default of 0, this value is not valid. If using dedicated masters, this value must be set to something > 0 |
