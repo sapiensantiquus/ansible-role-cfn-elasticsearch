@@ -23,5 +23,5 @@ For the sake of clarity: variables that are defined as not required, but have a 
 | elasticsearch_snapshot_hour | no | 0 | The hour in which to take the daily snapshot |
 | elasticsearch_instance_count | no | 3 | The number of nodes to use in the cluster |
 | elasticsearch_ingest_cloudwatch | no | false | Whether or not to create a CloudWatch log destination for use with the Kinesis stream |
-| elasticsearch_cw_destination_template | no | <strong>elasticsearch_build_path</strong>/kinesis-log-destination-<strong>elasticsearch_stack_name</strong>.json | Destination for the rendered log destination template 
+| elasticsearch_cw_destination_template | no | <strong>elasticsearch_build_path</strong>/kinesis-log-destination-<strong>elasticsearch_stack_name</strong>.json | Destination for the rendered log destination template |
 | elasticsearch_cw_kinesis_access_policy_template | no | <strong>elasticsearch_build_path</strong>/<strong>elasticsearch_stack_name</strong>-kinesis-role.json  | Destination for the rendered template for the policy to allow CloudWatch access to the Kinesis stream |
