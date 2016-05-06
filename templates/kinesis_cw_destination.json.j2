@@ -1,0 +1,29 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "ElasticSearch Template",
+  "Parameters" : {
+    "KinesisArn" : {
+      "Type" : "String",
+      "Description" : "ARN for the Kinesis stream destination used by CloudWatch logs"
+    },
+    "CloudWatchKinesisRoleArn" : {
+      "Type" : "String",
+      "Description" : "ARN for the Kinesis stream destination IAM Srole used by CloudWatch logs"
+    },
+    "CWKinesisDestinationName" : {
+      "Type" : "String",
+      "Description" : "Name of the kinesis destination stream used by CloudWatch"
+    }
+  },
+  "Resources" : {
+    "CloudWatchDestination" : {
+      "Type" : "AWS::Logs::Destination",
+      "Properties" : {
+        "DestinationName" : { "Ref" : "CWKinesisDestinationName" },
+        "RoleArn" : {  "Ref" : "CloudWatchKinesisRoleArn" },
+        "TargetArn" : {  "Ref" : "KinesisArn" },
+        "DestinationPolicy" : { "Fn::Join" : ["", ["{\"Version\" : \"2012-10-17\",\"Statement\" : [{% for cw_subscription_creator_arn in elasticsearch_cloudwatch_subscription_creator_arns %}{\"Effect\" : \"Allow\", \"Principal\" : {\"AWS\" : \"{{ elasticsearch_kinesis_account }}\"}, \"Action\" : \"logs:PutSubscriptionFilter\", \"Resource\" : \"arn:aws:logs:us-west-2:{{ elasticsearch_account }}:destination:",{ "Ref" : "CWKinesisDestinationName"},"\"}{% if not loop.last %}, {% endif %}{% endfor %}]}"]] }
+      }
+    }
+  }
+}
