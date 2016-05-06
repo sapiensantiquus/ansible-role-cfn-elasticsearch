@@ -15,6 +15,7 @@ For the sake of clarity: variables that are defined as not required, but have a 
 | elasticsearch_kinesis_shard_count | yes | | Number of shards to use with the Kinesis stream |
 | elasticsearch_use_ebs | no | false | Whether or not to use EBS volumes for data persistence on the cluster nodes |
 | elasticsearch_ebs_type | no | "gp2" | If EBS volumes are used for data persistence on the cluster nodes, the type of volume to use | 
+| elasticsearch_ebs_size | no | 0 | If EBS volumes are used for data persistence on the cluster nodes, the size (in GB) of volume to use | 
 | elasticsearch_ebs_iops | no | | If provisioned IOPS are required on the EBS volumes, the IOPS requirement |
 | elasticsearch_dedicated_master_enabled | no | false |  Whether to use dedicated master nodes for the ElasticSearch cluster |
 | elasticsearch_dedicated_master_count | conditional | 0 | Number of dedicated master nodes for the cluster. Note: although there is a default of 0, this value is not valid. If using dedicated masters, this value must be set to something > 0 |
@@ -23,5 +24,5 @@ For the sake of clarity: variables that are defined as not required, but have a 
 | elasticsearch_snapshot_hour | no | 0 | The hour in which to take the daily snapshot |
 | elasticsearch_instance_count | no | 3 | The number of nodes to use in the cluster |
 | elasticsearch_ingest_cloudwatch | no | false | Whether or not to create a CloudWatch log destination for use with the Kinesis stream |
-| elasticsearch_cw_destination_template | no | <strong>elasticsearch_build_path</strong>/kinesis-log-destination-<strong>elasticsearch_stack_name</strong>.json | Destination for the rendered log destination template 
+| elasticsearch_cw_destination_template | no | <strong>elasticsearch_build_path</strong>/kinesis-log-destination-<strong>elasticsearch_stack_name</strong>.json | Destination for the rendered log destination template |
 | elasticsearch_cw_kinesis_access_policy_template | no | <strong>elasticsearch_build_path</strong>/<strong>elasticsearch_stack_name</strong>-kinesis-role.json  | Destination for the rendered template for the policy to allow CloudWatch access to the Kinesis stream |
