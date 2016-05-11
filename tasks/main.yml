@@ -25,7 +25,7 @@
       ESSnapshotHour: "{{ elasticsearch_snapshot_hour }}"
       ESInstanceCount: "{{ elasticsearch_instance_count }}"
     security_token: "{{ lookup('env','AWS_SESSION_TOKEN' ) }}"
-    tags: "{{ tags }}"
+    tags: "{{ elasticsearch_tags }}"
   register: elasticsearch_stack
 
 - name: Convert stack to native
@@ -53,7 +53,7 @@
 - name: Create log destination stack
   cloudformation:
     stack_name: "{{ elasticsearch_stack_name }}-log-destination"
-    region: "{{ region }}"
+    region: "{{ elasticsearch_region }}"
     template: "{{ elasticsearch_cw_destination_template }}"
     template_parameters:
       CWKinesisDestinationName: "{{ elasticsearch_cloudwatch_destination_name }}"

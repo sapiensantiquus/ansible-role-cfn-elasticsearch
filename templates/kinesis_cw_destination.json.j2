@@ -22,7 +22,7 @@
         "DestinationName" : { "Ref" : "CWKinesisDestinationName" },
         "RoleArn" : {  "Ref" : "CloudWatchKinesisRoleArn" },
         "TargetArn" : {  "Ref" : "KinesisArn" },
-        "DestinationPolicy" : { "Fn::Join" : ["", ["{\"Version\" : \"2012-10-17\",\"Statement\" : [{% for cw_subscription_creator_arn in elasticsearch_cloudwatch_subscription_creator_arns %}{\"Effect\" : \"Allow\", \"Principal\" : {\"AWS\" : \"{{ elasticsearch_kinesis_account }}\"}, \"Action\" : \"logs:PutSubscriptionFilter\", \"Resource\" : \"arn:aws:logs:us-west-2:{{ elasticsearch_account }}:destination:",{ "Ref" : "CWKinesisDestinationName"},"\"}{% if not loop.last %}, {% endif %}{% endfor %}]}"]] }
+        "DestinationPolicy" : { "Fn::Join" : ["", ["{\"Version\" : \"2012-10-17\",\"Statement\" : [{% for account  in elasticsearch_cloudwatch_subscription_accounts %}{\"Effect\" : \"Allow\", \"Principal\" : {\"AWS\" : \"{{ account }}\"}, \"Action\" : \"logs:PutSubscriptionFilter\", \"Resource\" : \"arn:aws:logs:us-west-2:", { "Ref" : "AWS::AccountId"},":destination:",{ "Ref" : "CWKinesisDestinationName"},"\"}{% if not loop.last %}, {% endif %}{% endfor %}]}"]] }
       }
     }
   }
