@@ -75,7 +75,7 @@
      "Properties" : {
         "ShardCount" : { "Ref" : "KinesisShardCount" },
         "Tags" : [
-          {% for tag in tags.keys() %}
+          {% for tag in elasticsearch_tags.keys() %}
             {
               "Key" : "{{ tag }}",
               "Value" : "{{ tags[tag] }}"
@@ -148,7 +148,7 @@
           ]
         },
         "Tags" : [
-          {% for tag in tags.keys() %}
+          {% for tag in elasticsearch_tags.keys() %}
             {
               "Key" : "{{ tag }}",
               "Value" : "{{ tags[tag] }}"
