@@ -277,6 +277,11 @@
       "Value" : {
         "Fn::GetAtt" : [ "ElasticSearch", "DomainEndpoint" ]
       }
+    },
+    "ESResource" : {
+      "Value" : {
+        "Ref" : "ElasticSearch"
+      }
     }
   }
 }
