@@ -78,7 +78,7 @@
           {% for tag in elasticsearch_tags.keys() %}
             {
               "Key" : "{{ tag }}",
-              "Value" : "{{ tags[tag] }}"
+              "Value" : "{{ elasticeasrch_tags[tag] }}"
             }
             {% if not loop.last %}, {% endif %}
           {% endfor %}
@@ -151,7 +151,7 @@
           {% for tag in elasticsearch_tags.keys() %}
             {
               "Key" : "{{ tag }}",
-              "Value" : "{{ tags[tag] }}"
+              "Value" : "{{ elasticsearch_tags[tag] }}"
             }
             {% if not loop.last %}, {% endif %}
           {% endfor %}
