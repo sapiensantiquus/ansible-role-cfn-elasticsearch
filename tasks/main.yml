@@ -60,5 +60,5 @@
       CloudWatchKinesisRoleArn: "{{ kinesis_cwl_role }}"
       KinesisArn: "{{ kinesis_arn }}"
     security_token: "{{ lookup('env','AWS_SESSION_TOKEN' ) }}"
-    elasticsearch_tags: "{{ tags }}"
+    tags: "{{ elasticsearch_tags }}"
   when: elasticsearch_ingest_cloudwatch is defined and elasticsearch_ingest_cloudwatch == "true"
