@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-  "Description" : "ElasticSearch Template",
+  "Description" : "{{ elasticsearch_template_description | default('') }}",
   "Parameters" : {
     "KinesisArn" : {
       "Type" : "String",
