@@ -30,4 +30,4 @@ For the sake of clarity: variables that are defined as not required, but have a 
 | elasticsearch_cw_kinesis_access_policy_template | no | <strong>elasticsearch_build_path</strong>/<strong>elasticsearch_stack_name</strong>-kinesis-role.json  | Destination for the rendered template for the policy to allow CloudWatch access to the Kinesis stream |
 | elasticsearch_cloudwatch_subscription_accounts | conditional | | Required if <strong>elasticsearch_ingest_cloudwatch</strong> is set to "true". Account number of accounts that should be able to subscribe to the CloudWatch destination |
 | elasticsearch_cloudwatch_destination_name | conditional | | Required if <strong>elasticsearch_ingest_cloudwatch</strong> is set to "true". Name of the CloudWatch destination to be created. |
-| elasticsearch_template_description | no | | Description of the stacks being deployed |
+| elasticsearch_stack_description | no | | Description of the stacks being deployed |
