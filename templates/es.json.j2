@@ -162,7 +162,7 @@
     "CloudWatchKinesisRole" : {
       "Type" : "AWS::IAM::Role",
       "Properties" : {
-        "Path" : "/logging/",
+        "Path" : "{{ elasticsearch_role_path }}",
         "AssumeRolePolicyDocument" : {
           "Statement": [
           {% for region in elasticsearch_source_log_regions %}
@@ -178,10 +178,59 @@
       }
     },
     {% endif %}
+    {% if elasticsearch_snapshot_bucket is defined %}
+    "ESPublisherSnapshotRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties":{
+        "Path": "{{ elasticsearch_role_path }}",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": { "Service": "es.amazonaws.com" },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "ESPublisherPolicy",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Action":[
+                      "s3:ListBucket"
+                  ],
+                  "Effect":"Allow",
+                  "Resource":[
+                      "arn:aws:s3:::{{ elasticsearch_snapshot_bucket }}"
+                  ]
+                },
+                {
+                  "Action":[
+                      "s3:GetObject",
+                      "s3:PutObject",
+                      "s3:DeleteObject",
+                      "iam:PassRole"
+                  ],
+                  "Effect":"Allow",
+                  "Resource":[
+                      "arn:aws:s3:::{{ elasticsearch_snapshot_bucket }}/*"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {% endif %}
     "ESPublisherLambdaRole": {
       "Type": "AWS::IAM::Role",
       "Properties":{
-        "Path": "/logging/",
+        "Path": "{{ elasticsearch_role_path }}",
         "AssumeRolePolicyDocument": {
           "Version": "2012-10-17",
           "Statement": [
@@ -262,6 +311,13 @@
     "CWKinesisRoleARN" : {
       "Value": {
         "Fn::GetAtt" : [ "CloudWatchKinesisRole", "Arn" ]
+      }
+    },
+    {% endif %}
+    {% if elasticsearch_snapshot_bucket is defined %}
+    "ESSnapshotRoleARN" : {
+      "Value": {
+        "Fn::GetAtt" : [ "ESPublisherSnapshotRole", "Arn" ]
       }
     },
     {% endif %}
