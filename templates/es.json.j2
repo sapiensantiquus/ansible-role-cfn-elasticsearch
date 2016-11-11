@@ -128,6 +128,7 @@
             ]
           }
         },
+        {% if elasticsearch_access_ips is defined %}
         "AccessPolicies" : {
           "Statement": [
             {
@@ -147,6 +148,7 @@
             }
           ]
         },
+        {% endif %}
         "Tags" : [
           {% for tag in elasticsearch_tags.keys() %}
             {
